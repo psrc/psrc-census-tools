@@ -1,0 +1,67 @@
+---
+title: "psrc_census function use"
+author: "Data Science"
+date: "6/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## psrc_census.R functions
+
+These are instructions on how to use the functions in the libary psrc_census.R
+
+The code requires several libraries. The config file contains global values specific to PSRC. The main code is psrc_census.R.
+
+```{r libraries}
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(tidycensus)
+source('psrc_census_config.R')
+source('psrc_census.R')
+```
+
+### Set up your API key
+
+The first time you run this code, you will need to set our Census API Key as an environment variable, if you haven't doen taht. After that you can just get it.
+This is the website to get a key: https://api.census.gov/data/key_signup.html. Once you run Sys.setenv on the Census API Key you will only need to run Sys.getenv.
+
+
+```{r keys, results='hide'}
+#Sys.setenv(CENSUS_API_KEY = 'PUT YOUR KEY HERE')
+Sys.getenv("CENSUS_API_KEY")
+```
+
+Next you need to decide what tables you would like to download. This is the hardest part because you have find the correct table code, decide on geography, and which years.
+The main function psrc_acs_table has four parameters: tbl_code, geog, yr,acs.
+
+* tbl_code is the code of the ACS table list on the Census website, in string format, such as "B02001_005"
+* geog is the geography, currently with the options of "county" or "tract"
+* yr is the numeric year of the data, such as 2019
+* acs is which dataset you are using, such as "acs1" or "acs5"
+
+You can find the list of ACS datasets available via the api here: https://www.census.gov/data/developers/data-sets.html
+
+### 2019 1-year table list
+https://api.census.gov/data/2019/acs/acs1/variables.html
+
+### 2015-2019 5 year- table list
+https://api.census.gov/data/2019/acs/acs5/variables.html
+
+# Get the data  -----------------------------------------------------
+#psrc_table(tbl_code, geog, yr,acs)
+
+```{r get_data}
+tract_asian<-psrc_acs_table("B02001_005", "tract", 2019,'acs5')
+county_ferry<-psrc_acs_table("B08006_013", "county", 2019, 'acs1')
+```
+# Map the data  -----------------------------------------------------
+create_tract_map, we send in a data frame by tract, and it makes a map.
+
+```{r map_data}
+create_tract_map(tract_asian)
+```
+
