@@ -1,29 +1,43 @@
+# Next step ideas:
+# Add more geographies
+# Add Census or PUMS calls
+# Add functions for pretty formatting
+# Add parameters to the mapping functions to make it specific to your map such as variable labels
+
 # Download Census Table ----------------------------------------------------
 psrc_acs_table<-function(tbl_code, geog, yr,acs){
   
-  
-  variable.labels <- load_variables(yr, acs, cache = TRUE) %>% rename(variable = name)
-  
+  # the api only wants the first part of the table code: for example B02001 from B02001_005
   tbl_prefix <- strsplit(tbl_code, "[_]")[[1]][1]
   
-  geog_temp <- geog
   # to get regional values, you have to first get the county level values
+  # in the api call for the region, get all counties
+  geog_temp <- geog
+
   if (geog == 'region'){
     geog_temp<- 'county'}
   
-  
+  # to do: remove the , Washington hardcode
   data.tbl <- get_acs(geography = geog_temp, state=st, year=yr, survey = acs, table = tbl_prefix)%>%
               mutate(NAME = gsub(", Washington", "", NAME)) %>%
               filter(variable==tbl_code)%>%
               mutate(ACS_Year=yr, ACS_Type=acs, ACS_Geography=geog)
-
   
+  variable.labels <- load_variables(yr, acs, cache = TRUE) %>% rename(variable = name)
+  
+  data.tbl  <- left_join(data.tbl ,variable.labels,by=c("variable")) 
+
+  # for the region and the county, you need to get county level data. for the region you aggregate the counties.
+  # make this into a case statement
   if(geog== 'county'| geog=='region'){
      data.tbl <- data.tbl %>%
      filter(NAME %in% psrc.county) 
+     
      if(geog=='region') {
-       data.tbl <- data.tbl %>% select(variable, estimate, moe, ACS_Year, ACS_Type) %>%
-         mutate(total_region=sum(estimate), moe_region=moe_sum(moe))
+       data.tbl <- data.tbl %>%
+         mutate(total_region=sum(estimate), moe_region=moe_sum(moe, estimate)) %>%
+         select(variable, total_region, moe_region, ACS_Year, ACS_Type)%>%
+         filter(row_number()==1)
      }
        
   }else if(geog == 'tract'){
@@ -31,7 +45,7 @@ psrc_acs_table<-function(tbl_code, geog, yr,acs){
       data.tbl <- data.tbl %>%
       filter(str_detect(NAME, county_or)) 
   }else{
-    print('Only county or tract geog are supported currently')
+    print('Only county,region or tract geog are supported currently')
   }
   
   data.tbl <- data.tbl %>% filter(variable==tbl_code)

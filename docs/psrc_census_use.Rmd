@@ -9,15 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## psrc_census.R functions
+# psrc_census.R functions
 
-These are instructions on how to use the functions in the libary psrc_census.R
+These are instructions on how to use the functions in the library psrc_census.R
 
 The code requires several libraries. The config file contains global values specific to PSRC. The main code is psrc_census.R.
 
 Currently there are two functions:
-* psrc_acs_table retrieves acs data for a variable and puts it in a table at a chosen geography, for a chosen year
-* create_tract_map makes a map of the region at the tract level for a variable
+
+* **psrc_acs_table** retrieves acs data for a variable and puts it in a table at a chosen geography, for a chosen year
+
+* **create_tract_map** makes a map of the region at the tract level for a variable
 
 ```{r libraries}
 library(tidyverse)
@@ -44,8 +46,11 @@ Next you need to decide what tables you would like to download. This is the hard
 The main function psrc_acs_table has four parameters: tbl_code, geog, yr,acs.
 
 * tbl_code is the code of the ACS table list on the Census website, in string format, such as "B02001_005"
+
 * geog is the geography, currently with the options of "county" or "tract"
+
 * yr is the numeric year of the data, such as 2019
+
 * acs is which dataset you are using, such as "acs1" or "acs5"
 
 You can find the list of ACS datasets available via the api here: https://www.census.gov/data/developers/data-sets.html
@@ -62,7 +67,7 @@ https://api.census.gov/data/2019/acs/acs5/variables.html
 ```{r get_data}
 tract_asian<-psrc_acs_table("B02001_005", "tract", 2019,'acs5')
 county_ferry<-psrc_acs_table("B08006_013", "county", 2019, 'acs1')
-region_brazilian<-psrc_acs_table("B04006_22", "region", 2019, 'acs1')
+region_female_under_5<-psrc_acs_table("B01001_027", "region", 2019, 'acs1')
 
 #if you want you can write the data to the clipboard or out to csv or excel
 write.table(county_ferry, "clipboard", sep="\t", row.names=FALSE)
