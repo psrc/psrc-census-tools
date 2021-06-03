@@ -78,7 +78,7 @@ create_tract_map<-function(tract_tbl){
   pal <- colorBin("YlOrRd", domain = c.layer$TotalP, bins = bins)
   
   labels <- paste0("Census Tract ", c.layer$geoidstr, '<p></p>', 
-                   'Asian and Pacific Islander population: ', prettyNum(round(c.layer$Total, -1), big.mark = ",")) %>% lapply(htmltools::HTML)
+                   'Total: ', prettyNum(round(c.layer$Total, -1), big.mark = ",")) %>% lapply(htmltools::HTML)
   
   m <- leaflet() %>%
     addMapPane(name = "polygons", zIndex = 410) %>% 
