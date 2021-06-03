@@ -1,5 +1,5 @@
 ---
-title: "psrc_census function use"
+title: "R functions to work with Census data at PSRC"
 author: "Data Science"
 date: "6/2/2021"
 output: html_document
@@ -43,6 +43,15 @@ Sys.getenv("CENSUS_API_KEY")
 ```
 
 Next you need to decide what tables you would like to download. This is the hardest part because you have find the correct table code, decide on geography, and which years.
+
+
+### 2019 1-year table list
+https://api.census.gov/data/2019/acs/acs1/variables.html
+
+### 2015-2019 5 year- table list
+https://api.census.gov/data/2019/acs/acs5/variables.html
+
+# Get the data  -----------------------------------------------------
 The main function psrc_acs_table has four parameters: tbl_code, geog, yr,acs.
 
 * tbl_code is the code of the ACS table list on the Census website, in string format, such as "B02001_005"
@@ -54,14 +63,6 @@ The main function psrc_acs_table has four parameters: tbl_code, geog, yr,acs.
 * acs is which dataset you are using, such as "acs1" or "acs5"
 
 You can find the list of ACS datasets available via the api here: https://www.census.gov/data/developers/data-sets.html
-
-### 2019 1-year table list
-https://api.census.gov/data/2019/acs/acs1/variables.html
-
-### 2015-2019 5 year- table list
-https://api.census.gov/data/2019/acs/acs5/variables.html
-
-# Get the data  -----------------------------------------------------
 #psrc_table(tbl_code, geog, yr,acs)
 
 ```{r get_data}
