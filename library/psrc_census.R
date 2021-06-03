@@ -6,16 +6,26 @@ psrc_acs_table<-function(tbl_code, geog, yr,acs){
   
   tbl_prefix <- strsplit(tbl_code, "[_]")[[1]][1]
   
-  data.tbl <- get_acs(geography = geog, state=st, year=yr, survey = acs, table = tbl_prefix)%>%
+  geog_temp <- geog
+  # to get regional values, you have to first get the county level values
+  if (geog == 'region'){
+    geog_temp<- 'county'}
+  
+  
+  data.tbl <- get_acs(geography = geog_temp, state=st, year=yr, survey = acs, table = tbl_prefix)%>%
               mutate(NAME = gsub(", Washington", "", NAME)) %>%
               filter(variable==tbl_code)%>%
               mutate(ACS_Year=yr, ACS_Type=acs, ACS_Geography=geog)
+
   
-  print(data.tbl)
-  
-  if(geog== 'county'){
+  if(geog== 'county'| geog=='region'){
      data.tbl <- data.tbl %>%
      filter(NAME %in% psrc.county) 
+     if(geog=='region') {
+       data.tbl <- data.tbl %>% select(variable, estimate, moe, ACS_Year, ACS_Type) %>%
+         mutate(total_region=sum(estimate), moe_region=moe_sum(moe))
+     }
+       
   }else if(geog == 'tract'){
       county_or<-paste(psrc.county, collapse='|')
       data.tbl <- data.tbl %>%

@@ -15,11 +15,16 @@ These are instructions on how to use the functions in the libary psrc_census.R
 
 The code requires several libraries. The config file contains global values specific to PSRC. The main code is psrc_census.R.
 
+Currently there are two functions:
+* psrc_acs_table retrieves acs data for a variable and puts it in a table at a chosen geography, for a chosen year
+* create_tract_map makes a map of the region at the tract level for a variable
+
 ```{r libraries}
 library(tidyverse)
 library(sf)
 library(leaflet)
 library(tidycensus)
+library(writexl)
 source('../library/psrc_census_config.R')
 source('../library/psrc_census.R')
 ```
@@ -57,6 +62,13 @@ https://api.census.gov/data/2019/acs/acs5/variables.html
 ```{r get_data}
 tract_asian<-psrc_acs_table("B02001_005", "tract", 2019,'acs5')
 county_ferry<-psrc_acs_table("B08006_013", "county", 2019, 'acs1')
+region_brazilian<-psrc_acs_table("B04006_22", "region", 2019, 'acs1')
+
+#if you want you can write the data to the clipboard or out to csv or excel
+write.table(county_ferry, "clipboard", sep="\t", row.names=FALSE)
+write.csv(county_ferry, "ferry_workers_by_county.csv")
+write_xlsx(county_ferry, "ferry_workers_by_county.xlsx")
+
 ```
 # Map the data  -----------------------------------------------------
 create_tract_map, we send in a data frame by tract, and it makes a map.
