@@ -36,7 +36,7 @@ psrc_acs_table<-function(tbl_code, geog, yr,acs){
      if(geog=='region') {
        data.tbl <- data.tbl %>%
          mutate(total_region=sum(estimate), moe_region=moe_sum(moe, estimate)) %>%
-         select(variable, total_region, moe_region, ACS_Year, ACS_Type)%>%
+         select(variable, total_region, moe_region, ACS_Year, ACS_Type,label)%>%
          filter(row_number()==1)
      }
        
