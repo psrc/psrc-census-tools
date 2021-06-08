@@ -1,0 +1,10 @@
+name: "census-tools-psrc"
+output_dir: "docs"
+navbar:
+  title: "Census Functions"
+  left:
+  - text: "Home"
+   href: index.html
+output:
+  html_document:
+ theme: cosmo

@@ -1,0 +1,5 @@
+"GEOID","NAME","variable","estimate","moe","ACS_Year","ACS_Type","ACS_Geography","label","concept"
+"53033","King County","B09019_013",5056,509,2019,"acs5","county","Estimate!!Total:!!In households:!!Same-sex unmarried partner","HOUSEHOLD TYPE (INCLUDING LIVING ALONE) BY RELATIONSHIP"
+"53035","Kitsap County","B09019_013",282,93,2019,"acs5","county","Estimate!!Total:!!In households:!!Same-sex unmarried partner","HOUSEHOLD TYPE (INCLUDING LIVING ALONE) BY RELATIONSHIP"
+"53053","Pierce County","B09019_013",1249,234,2019,"acs5","county","Estimate!!Total:!!In households:!!Same-sex unmarried partner","HOUSEHOLD TYPE (INCLUDING LIVING ALONE) BY RELATIONSHIP"
+"53061","Snohomish County","B09019_013",724,148,2019,"acs5","county","Estimate!!Total:!!In households:!!Same-sex unmarried partner","HOUSEHOLD TYPE (INCLUDING LIVING ALONE) BY RELATIONSHIP"
