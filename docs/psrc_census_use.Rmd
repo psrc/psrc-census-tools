@@ -21,7 +21,7 @@ Currently there are two functions:
 
 * **create_tract_map** makes a map of the region at the tract level for a variable
 
-```{r libraries, warning=FALSE,message=FALSE} }
+```{r libraries, warning=FALSE,message=FALSE}
 library(tidyverse)
 library(sf)
 library(leaflet)
