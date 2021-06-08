@@ -1,7 +1,7 @@
 ---
 title: "R functions to work with Census data at PSRC"
 author: "Data Science"
-date: "6/2/2021"
+date: "`r format(Sys.time(), '%B %Y')`"
 output: html_document
 ---
 
@@ -21,7 +21,7 @@ Currently there are two functions:
 
 * **create_tract_map** makes a map of the region at the tract level for a variable
 
-```{r libraries}
+```{r libraries, warning=FALSE,message=FALSE} }
 library(tidyverse)
 library(sf)
 library(leaflet)
@@ -58,7 +58,7 @@ The main function psrc_acs_table has four parameters: tbl_code, geog, yr,acs.
 
 * geog is the geography, currently with the options of "county" or "tract"
 
-* yr is the numeric year of the data, such as 2019
+* yr is the last numeric year of the data, such as 2019 for 2014-2019 five year, or 2019 for one year
 
 * acs is which dataset you are using, such as "acs1" or "acs5"
 

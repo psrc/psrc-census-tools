@@ -1,10 +1,4 @@
-# Next step ideas:
-# Add more geographies
-# Add Census or PUMS calls
-# Add functions for pretty formatting
-# Add parameters to the mapping functions to make it specific to your map such as variable labels
-
-# Download Census Table ----------------------------------------------------
+# Download ACS Table ----------------------------------------------------
 psrc_acs_table<-function(tbl_code, geog, year, acs){
   
   # the api only wants the first part of the table code: for example B02001 from B02001_005
