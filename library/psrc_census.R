@@ -5,50 +5,53 @@
 # Add parameters to the mapping functions to make it specific to your map such as variable labels
 
 # Download Census Table ----------------------------------------------------
-psrc_acs_table<-function(tbl_code, geog, yr,acs){
+psrc_acs_table<-function(tbl_code, geog, year, acs){
   
   # the api only wants the first part of the table code: for example B02001 from B02001_005
-  tbl_prefix <- strsplit(tbl_code, "[_]")[[1]][1]
+  tbl_prefix <- str_extract(tbl_code, "\\w+(?=_)")
   
   # to get regional values, you have to first get the county level values
   # in the api call for the region, get all counties
-  geog_temp <- geog
+  ifelse(geog == 'region', geog_temp <- 'county', geog_temp <- geog)
 
-  if (geog == 'region'){
-    geog_temp<- 'county'}
+  data.tbl <- get_acs(geography = geog_temp, state=st, year=year, survey = acs, table = tbl_prefix) %>%
+              mutate(NAME = str_extract(NAME, ".*(?=,)")) %>%
+              filter(variable == tbl_code) %>%
+              mutate(ACS_Year=year, ACS_Type=acs, ACS_Geography=geog)
   
-  # to do: remove the , Washington hardcode
-  data.tbl <- get_acs(geography = geog_temp, state=st, year=yr, survey = acs, table = tbl_prefix)%>%
-              mutate(NAME = gsub(", Washington", "", NAME)) %>%
-              filter(variable==tbl_code)%>%
-              mutate(ACS_Year=yr, ACS_Type=acs, ACS_Geography=geog)
+  variable.labels <- load_variables(year, acs, cache = TRUE) %>% rename(variable = name)
   
-  variable.labels <- load_variables(yr, acs, cache = TRUE) %>% rename(variable = name)
-  
-  data.tbl  <- left_join(data.tbl ,variable.labels,by=c("variable")) 
+  data.tbl  <- left_join(data.tbl, variable.labels, by = c("variable")) 
 
   # for the region and the county, you need to get county level data. for the region you aggregate the counties.
   # make this into a case statement
-  if(geog== 'county'| geog=='region'){
-     data.tbl <- data.tbl %>%
-     filter(NAME %in% psrc.county) 
-     
-     if(geog=='region') {
+  if(geog == 'county'| geog == 'region'){
+    
+    data.tbl <- data.tbl %>%
+      filter(NAME %in% psrc.county) 
+
+     if(geog == 'region') {
+       
        data.tbl <- data.tbl %>%
-         mutate(total_region=sum(estimate), moe_region=moe_sum(moe, estimate)) %>%
-         select(variable, total_region, moe_region, ACS_Year, ACS_Type,label)%>%
-         filter(row_number()==1)
+         group_by(variable, ACS_Year, ACS_Type, label) %>% 
+         summarise(total_region = sum(estimate), 
+                   moe_region = moe_sum(moe, estimate)) %>% 
+         relocate(ends_with('region'), .after = variable)
+       
      }
        
-  }else if(geog == 'tract'){
-      county_or<-paste(psrc.county, collapse='|')
-      data.tbl <- data.tbl %>%
-      filter(str_detect(NAME, county_or)) 
-  }else{
-    print('Only county,region or tract geog are supported currently')
+  } else if(geog == 'tract'){
+    
+    county_or <- paste(psrc.county, collapse='|')
+    data.tbl <- data.tbl %>%
+      filter(str_detect(NAME, county_or))
+      
+  } else{
+    
+    print('Only county, region, or tract geog are supported currently')
   }
   
-  data.tbl <- data.tbl %>% filter(variable==tbl_code)
+  data.tbl <- data.tbl %>% filter(variable == tbl_code)
   print(data.tbl)
   return(data.tbl)
   
@@ -58,13 +61,13 @@ create_tract_map<-function(tract_tbl){
   # Create Map --------------------------------------------------------------
   tract.lyr <- st_read(gdb.nm, tract_layer, crs = spn)
   
-  tbl <-tract_tbl %>%
-  select(GEOID,estimate) %>%
-  mutate(across(everything(), .fns = ~replace_na(.,0))) %>%
-  mutate(across(c('GEOID'), as.character))%>%
-  group_by(GEOID) %>%
-  summarise(Total=sum(estimate))
-  
+  tbl <- tract_tbl %>%
+    select(GEOID,estimate) %>%
+    mutate(across(everything(), .fns = ~replace_na(.,0))) %>%
+    mutate(across(c('GEOID'), as.character))%>%
+    group_by(GEOID) %>%
+    summarise(Total=sum(estimate))
+
   c.layer <- left_join(tract.lyr,tbl, by = c("geoid10"="GEOID")) %>%
     st_transform(wgs84)
   
@@ -90,7 +93,6 @@ create_tract_map<-function(tract_tbl){
     addEasyButton(easyButton(
       icon="fa-globe", title="Region",
       onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }"))) %>%
-    
     addPolygons(data=c.layer,
                 fillOpacity = 0.7,
                 fillColor = pal(c.layer$Total),
@@ -110,15 +112,13 @@ create_tract_map<-function(tract_tbl){
                 labelOptions = labelOptions(
                   style = list("font-weight" = "normal", padding = "3px 8px"),
                   textsize = "15px",
-                  direction = "auto"))%>%
-    
+                  direction = "auto")) %>%
     addLegend(pal = pal,
               values = c.layer$estimate,
               position = "bottomright") %>%
     addLayersControl(baseGroups = "CartoDB.VoyagerNoLabels",
                      overlayGroups = c("map labels",
-                                       "population"))%>%
-    
+                                       "population")) %>%
     setView(lng=-122.257, lat=47.615, zoom=8.5)
   
   return(m)
